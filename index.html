@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f5f7">
+  <meta name="description" content="以簡單清楚的方式，安排每一天的工地工作。支援待辦管理、進度切換與瀏覽器本機儲存。">
+  <title>工地日常｜待辦事項管理</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="網站導覽">
+      <a class="brand" href="./index.html" aria-label="工地日常首頁"><span class="brand-mark" aria-hidden="true">▤</span><span>工地日常<span class="brand-en">DAILY TASK BOARD</span></span></a>
+      <div class="sidebar-label">工作空間</div>
+      <div class="nav-active"><span aria-hidden="true">▦</span> 進度與待辦事項 <span class="nav-dot"></span></div>
+      <div class="sidebar-note"><span class="note-icon" aria-hidden="true">✓</span><strong>把每一天，安排好。</strong><p>從一項待辦開始，<br>讓現場的每一步更清楚。</p></div>
+      <div class="sidebar-bottom"><span class="online-dot"></span> 瀏覽器本機保存<span>課程作業 · 獨立靜態網站</span></div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar"><span>工作空間 <span class="breadcrumb">／ 進度與待辦</span></span><time id="today-label"></time></header>
+      <div class="content">
+        <section class="page-heading" aria-labelledby="page-title"><div><p class="eyebrow">每一天，都向前一步</p><h1 id="page-title">工地日常，井然有序。</h1><p class="subtitle">安排工作、追蹤進度，讓重要的事都有著落。</p></div><button id="new-task-button" class="button primary" type="button"><span aria-hidden="true">＋</span> 新增待辦</button></section>
+        <div id="storage-alert" class="storage-alert" role="alert" hidden></div>
+        <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+        <section class="stats-grid" aria-label="全部待辦統計">
+          <article class="stat-card"><span class="stat-label">全部事項 <span class="stat-symbol blue" aria-hidden="true">▤</span></span><div class="stat-value" id="stat-total">0</div><span class="stat-caption">每一項安排，都值得記錄</span></article>
+          <article class="stat-card"><span class="stat-label">進行中 <span class="stat-symbol orange" aria-hidden="true">◷</span></span><div class="stat-value" id="stat-progress">0</div><span class="stat-caption">專注眼前，穩定推進</span></article>
+          <article class="stat-card"><span class="stat-label">已完成 <span class="stat-symbol green" aria-hidden="true">✓</span></span><div class="stat-value" id="stat-completed">0</div><span class="stat-caption">看得見的每一份進展</span></article>
+          <article class="stat-card"><span class="stat-label">整體完成率 <span class="stat-symbol violet" aria-hidden="true">↗</span></span><div class="stat-value" id="stat-rate">0<span>%</span></div><progress id="completion-progress" max="100" value="0" aria-label="整體完成率"></progress></article>
+        </section>
+
+        <div class="board-layout">
+          <section class="board" aria-labelledby="board-title">
+            <div class="section-heading"><h2 id="board-title">我的待辦 <span id="list-count" class="count-badge">0</span></h2><button id="capture-button" class="text-button" type="button" aria-pressed="false">截圖模式</button></div>
+            <div class="board-tools"><label class="search-box"><span aria-hidden="true">⌕</span><span class="sr-only">搜尋待辦</span><input id="search" type="search" placeholder="搜尋事項、負責人或備註…" autocomplete="off"></label><label class="sr-only" for="category-filter">篩選工作類別</label><select id="category-filter"><option value="全部">全部類別</option><option>施工</option><option>材料</option><option>安全衛生</option><option>品質查驗</option><option>行政</option><option>其他</option></select></div>
+            <div class="status-tabs" role="group" aria-label="篩選進度狀態"><button type="button" class="status-tab active" data-filter="全部" aria-pressed="true">全部 <span data-count="全部">0</span></button><button type="button" class="status-tab" data-filter="待處理" aria-pressed="false">待處理 <span data-count="待處理">0</span></button><button type="button" class="status-tab" data-filter="進行中" aria-pressed="false">進行中 <span data-count="進行中">0</span></button><button type="button" class="status-tab" data-filter="已完成" aria-pressed="false">已完成 <span data-count="已完成">0</span></button></div>
+            <div class="list-summary"><span id="result-summary">載入中…</span><span>依預計完成日期排序</span></div>
+            <div id="task-list" class="task-list" aria-live="polite"></div>
+            <div id="empty-state" class="empty-state" hidden><span aria-hidden="true">☷</span><h3>目前沒有待辦事項</h3><p>新增一項工作，或試試其他搜尋條件。</p></div>
+            <p class="capture-hint" hidden>可使用電腦或手機的系統截圖，記錄目前的工作進度。</p>
+          </section>
+
+          <aside class="editor-panel" aria-labelledby="editor-title" id="editor-panel">
+            <div class="editor-heading"><span class="editor-icon" aria-hidden="true">＋</span><div><h2 id="editor-title">新增待辦事項</h2><p id="editor-description">為下一步，留下一個安排。</p></div></div>
+            <form id="task-form">
+              <label for="task-title">待辦事項名稱 <span class="required">*</span></label><input id="task-title" name="title" required maxlength="80" placeholder="例如：完成基礎工程查驗">
+              <div class="form-row"><div><label for="task-category">工作類別</label><select id="task-category" name="category"><option>施工</option><option>材料</option><option>安全衛生</option><option>品質查驗</option><option>行政</option><option>其他</option></select></div><div><label for="task-owner">負責人 <span class="required">*</span></label><input id="task-owner" name="owner" required maxlength="40" placeholder="示範負責人甲"></div></div>
+              <label for="task-due">預計完成日期 <span class="required">*</span></label><input id="task-due" name="dueDate" type="date" required>
+              <label for="task-status">進度狀態</label><select id="task-status" name="status"><option>待處理</option><option>進行中</option><option>已完成</option></select>
+              <label for="task-notes">備註 <span class="optional">選填</span></label><textarea id="task-notes" name="notes" maxlength="500" rows="3" placeholder="補充工作重點或注意事項…"></textarea>
+              <p id="form-error" class="form-error" role="alert" hidden></p>
+              <button id="save-button" class="button primary save-button" type="submit">＋ 新增事項</button><button id="cancel-edit" class="button secondary" type="button" hidden>取消修改</button>
+            </form>
+            <div class="privacy-note"><span aria-hidden="true">◈</span><p>請使用虛構代稱，勿輸入真實個資。<br>資料只儲存在目前瀏覽器，不會上傳伺服器。</p></div>
+          </aside>
+        </div>
+        <footer class="page-footer"><span><span class="online-dot"></span> <span id="storage-label">localStorage 本機儲存</span></span><span>專注當下，穩定向前。</span></footer>
+      </div>
+    </main>
+  </div>
+  <dialog id="delete-dialog" aria-labelledby="delete-title"><form method="dialog"><div class="delete-icon" aria-hidden="true">−</div><h2 id="delete-title">刪除這筆待辦？</h2><p id="delete-description"></p><p class="muted">刪除後無法復原，請再次確認。</p><div class="dialog-actions"><button class="button secondary" value="cancel" autofocus>保留事項</button><button id="confirm-delete" class="button danger" value="delete">確認刪除</button></div></form></dialog>
+</body>
+</html>
